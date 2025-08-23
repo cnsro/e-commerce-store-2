@@ -2,7 +2,6 @@ import React, { useState, createContext, useContext, useEffect } from 'react';
 import { ShoppingBag, Menu, X, ChevronRight, Search, User, Heart, Minus, Plus } from 'lucide-react';
 
 // -- DUMMY DATA FOR CONSERO --
-// This data is now tailored for a luxury men's fashion brand.
 const products = [
   { id: 1, name: 'Milano Wool Blazer', designer: 'Consero Sartoria', price: 1950, category: 'Tailoring', image: 'https://placehold.co/800x1000/2d3748/e2e8f0?text=Milano+Blazer', description: 'Impeccably tailored from Italian virgin wool, this single-breasted blazer features a structured shoulder and a modern silhouette.', sizes: ['46', '48', '50', '52'], colors: ['Navy', 'Charcoal'] },
   { id: 2, name: 'Kyoto Selvedge Denim', designer: 'Consero Denim', price: 480, category: 'Trousers', image: 'https://placehold.co/800x1000/4a5568/e2e8f0?text=Kyoto+Denim', description: 'Crafted from 14oz Japanese selvedge denim, these jeans offer a slim-straight fit that molds to the wearer over time.', sizes: ['30', '31', '32', '34', '36'], colors: ['Raw Indigo', 'Black'] },
@@ -156,7 +155,7 @@ const Header = ({ setPage }) => {
 };
 
 // -- FOOTER COMPONENT --
-const Footer = () => {
+const Footer = ({ setPage }) => {
   return (
     <footer className="bg-gray-50 border-t border-gray-200">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -164,19 +163,19 @@ const Footer = () => {
           <div>
             <h3 className="text-sm font-semibold text-gray-800 tracking-wider uppercase">Client Services</h3>
             <ul className="mt-4 space-y-2">
-              <li><a href="#" className="text-sm text-gray-600 hover:text-gray-900">Contact Us</a></li>
-              <li><a href="#" className="text-sm text-gray-600 hover:text-gray-900">Shipping & Returns</a></li>
-              <li><a href="#" className="text-sm text-gray-600 hover:text-gray-900">FAQ</a></li>
-              <li><a href="#" className="text-sm text-gray-600 hover:text-gray-900">Sizing</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setPage('contact'); }} className="text-sm text-gray-600 hover:text-gray-900">Contact Us</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setPage('shipping'); }} className="text-sm text-gray-600 hover:text-gray-900">Shipping & Returns</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setPage('faq'); }} className="text-sm text-gray-600 hover:text-gray-900">FAQ</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setPage('sizing'); }} className="text-sm text-gray-600 hover:text-gray-900">Sizing</a></li>
             </ul>
           </div>
           <div>
             <h3 className="text-sm font-semibold text-gray-800 tracking-wider uppercase">About Consero</h3>
             <ul className="mt-4 space-y-2">
-              <li><a href="#" className="text-sm text-gray-600 hover:text-gray-900">Our Philosophy</a></li>
-              <li><a href="#" className="text-sm text-gray-600 hover:text-gray-900">Careers</a></li>
-              <li><a href="#" className="text-sm text-gray-600 hover:text-gray-900">Craftsmanship</a></li>
-              <li><a href="#" className="text-sm text-gray-600 hover:text-gray-900">Press</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setPage('philosophy'); }} className="text-sm text-gray-600 hover:text-gray-900">Our Philosophy</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setPage('careers'); }} className="text-sm text-gray-600 hover:text-gray-900">Careers</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setPage('craftsmanship'); }} className="text-sm text-gray-600 hover:text-gray-900">Craftsmanship</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setPage('press'); }} className="text-sm text-gray-600 hover:text-gray-900">Press</a></li>
             </ul>
           </div>
           <div className="col-span-1 md:col-span-2">
@@ -414,7 +413,7 @@ const ProductDetailPage = ({ product, setPage }) => {
             <div className="mt-8">
               <div className="flex justify-between items-center">
                 <h3 className="text-sm font-medium text-gray-900">Size: <span className="text-gray-600 font-normal">{selectedSize}</span></h3>
-                <a href="#" className="text-sm font-medium text-gray-600 hover:text-gray-900">Sizing Guide</a>
+                <a href="#" onClick={(e) => { e.preventDefault(); setPage('sizing'); }} className="text-sm font-medium text-gray-600 hover:text-gray-900">Sizing Guide</a>
               </div>
               <div className="grid grid-cols-4 gap-4 mt-2">
                 {product.sizes.map(size => (
@@ -535,9 +534,25 @@ const CartPage = ({ setPage }) => {
   );
 };
 
+// -- GENERIC PAGE COMPONENT FOR STATIC CONTENT --
+const GenericInfoPage = ({ title, children }) => {
+  return (
+    <div className="bg-white">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="max-w-3xl mx-auto">
+          <h1 className="text-4xl font-serif text-gray-900 mb-8">{title}</h1>
+          <div className="prose lg:prose-lg text-gray-700">
+            {children}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // -- MAIN APP COMPONENT --
 export default function App() {
-  const [page, setPage] = useState('home'); // 'home', 'products', 'productDetail', 'cart'
+  const [page, setPage] = useState('home');
   const [selectedProduct, setSelectedProduct] = useState(null);
   
   // Scroll to top on page change
@@ -553,6 +568,25 @@ export default function App() {
         return <ProductDetailPage product={selectedProduct} setPage={setPage} />;
       case 'cart':
         return <CartPage setPage={setPage} />;
+      
+      // --- NEW STATIC PAGES ---
+      case 'contact':
+        return <GenericInfoPage title="Contact Us"><p>For client services, press, or other inquiries, please contact us via email. We aim to respond to all inquiries within 24 business hours.</p><p className="mt-4"><strong>Client Services:</strong> <a href="mailto:service@consero.com">service@consero.com</a></p><p><strong>Press Inquiries:</strong> <a href="mailto:press@consero.com">press@consero.com</a></p></GenericInfoPage>;
+      case 'shipping':
+        return <GenericInfoPage title="Shipping & Returns"><p>We offer complimentary express shipping on all orders. Returns are accepted within 14 days of delivery. Please visit our returns portal to initiate a return.</p></GenericInfoPage>;
+      case 'faq':
+        return <GenericInfoPage title="Frequently Asked Questions"><p><strong>Q: What is your return policy?</strong><br/>A: We accept returns on all items within 14 days of delivery, provided they are in original condition with all tags attached.</p><p className="mt-4"><strong>Q: Do you ship internationally?</strong><br/>A: Yes, we ship worldwide via our express courier partners.</p></GenericInfoPage>;
+      case 'sizing':
+        return <GenericInfoPage title="Sizing Guide"><p>Our tailoring follows standard European sizing. For knitwear and casual pieces, we recommend taking your true size for a regular fit. Detailed measurements are available on each product page.</p></GenericInfoPage>;
+      case 'philosophy':
+        return <GenericInfoPage title="Our Philosophy"><p>Consero was founded on the principles of timeless design, uncompromising quality, and responsible craftsmanship. We create modern heirlooms for the discerning gentleman—pieces designed to be worn and cherished for a lifetime.</p></GenericInfoPage>;
+      case 'careers':
+        return <GenericInfoPage title="Careers"><p>We are always looking for talented individuals to join our team. To view current openings or to submit a speculative application, please email your CV and cover letter to <a href="mailto:careers@consero.com">careers@consero.com</a>.</p></GenericInfoPage>;
+      case 'craftsmanship':
+        return <GenericInfoPage title="Craftsmanship"><p>Every Consero garment is a testament to the skill of our artisans. We partner with small, family-owned workshops in Italy and Japan, utilizing traditional techniques and the finest materials to create pieces of exceptional quality.</p></GenericInfoPage>;
+      case 'press':
+        return <GenericInfoPage title="Press"><p>For all press inquiries, including sample requests and interviews, please contact our public relations team at <a href="mailto:press@consero.com">press@consero.com</a>.</p></GenericInfoPage>;
+
       case 'home':
       default:
         return <HomePage setPage={setPage} setSelectedProduct={setSelectedProduct} />;
@@ -570,6 +604,8 @@ export default function App() {
           .font-serif {
             font-family: 'Cormorant Garamond', serif;
           }
+          .prose a { color: #1f2937; text-decoration: underline; }
+          .prose a:hover { color: #4b5563; }
           @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -586,7 +622,7 @@ export default function App() {
         <main>
           {renderPage()}
         </main>
-        <Footer />
+        <Footer setPage={setPage} />
       </div>
     </CartProvider>
   );
