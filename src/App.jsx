@@ -1,18 +1,19 @@
 import React, { useState, createContext, useContext, useEffect } from 'react';
-import { ShoppingBag, Menu, X, ChevronDown, ChevronRight, Search, User, Heart, Minus, Plus } from 'lucide-react';
+import { ShoppingBag, Menu, X, ChevronRight, Search, User, Heart, Minus, Plus } from 'lucide-react';
 
-// -- DUMMY DATA --
-// In a real application, this data would come from a database or API.
+// -- DUMMY DATA FOR CONSERO --
+// This data is now tailored for a luxury men's fashion brand.
 const products = [
-  { id: 1, name: 'Étoile Silk Blouse', designer: 'Atelier Garance', price: 850, category: 'Tops', image: 'https://placehold.co/800x1000/f0f0f0/333?text=Étoile+Silk+Blouse', description: 'A timeless silk blouse with a fluid drape and mother-of-pearl buttons. The epitome of Parisian chic.', sizes: ['XS', 'S', 'M', 'L'], colors: ['Ivory', 'Black'] },
-  { id: 2, name: 'Ventura Tailored Trousers', designer: 'Bastion', price: 1200, category: 'Bottoms', image: 'https://placehold.co/800x1000/e9e9e9/333?text=Ventura+Trousers', description: 'Expertly tailored from Italian wool, these trousers feature a flattering high-waist and wide-leg silhouette.', sizes: ['S', 'M', 'L', 'XL'], colors: ['Charcoal', 'Navy'] },
-  { id: 3, name: 'Riviera Linen Dress', designer: 'Solstice', price: 1550, category: 'Dresses', image: 'https://placehold.co/800x1000/f5f5f5/333?text=Riviera+Linen+Dress', description: 'An effortless midi dress crafted from breathable organic linen, perfect for sun-drenched days.', sizes: ['XS', 'S', 'M'], colors: ['Sand', 'Terracotta'] },
-  { id: 4, name: 'Apex Cashmere Sweater', designer: 'Aura', price: 1800, category: 'Knitwear', image: 'https://placehold.co/800x1000/e0e0e0/333?text=Apex+Cashmere', description: 'A sumptuously soft oversized cashmere sweater, sourced from sustainable Mongolian farms.', sizes: ['S', 'M', 'L'], colors: ['Heather Grey', 'Oatmeal'] },
-  { id: 5, name: 'Orion Trench Coat', designer: 'Bastion', price: 2950, category: 'Outerwear', image: 'https://placehold.co/800x1000/dcdcdc/333?text=Orion+Trench', description: 'The definitive trench coat, reimagined with modern proportions and water-resistant gabardine.', sizes: ['S', 'M', 'L'], colors: ['Beige', 'Olive'] },
-  { id: 6, name: 'Luna Slip Skirt', designer: 'Atelier Garance', price: 750, category: 'Bottoms', image: 'https://placehold.co/800x1000/fafafa/333?text=Luna+Slip+Skirt', description: 'A bias-cut silk satin skirt that moves beautifully with every step. A versatile wardrobe essential.', sizes: ['XS', 'S', 'M', 'L'], colors: ['Champagne', 'Espresso'] },
-  { id: 7, name: 'Helios Sunglasses', designer: 'Solstice', price: 450, category: 'Accessories', image: 'https://placehold.co/800x1000/f8f8f8/333?text=Helios+Sunglasses', description: 'Handcrafted in Italy, these oversized sunglasses feature a bold acetate frame and UV-protective lenses.', sizes: ['One Size'], colors: ['Tortoise', 'Black'] },
-  { id: 8, name: 'Cresta Leather Belt', designer: 'Bastion', price: 350, category: 'Accessories', image: 'https://placehold.co/800x1000/e5e5e5/333?text=Cresta+Belt', description: 'A minimalist leather belt with a sculptural gold-tone buckle. Made from vegetable-tanned leather.', sizes: ['S', 'M', 'L'], colors: ['Black', 'Cognac'] },
+  { id: 1, name: 'Milano Wool Blazer', designer: 'Consero Sartoria', price: 1950, category: 'Tailoring', image: 'https://placehold.co/800x1000/2d3748/e2e8f0?text=Milano+Blazer', description: 'Impeccably tailored from Italian virgin wool, this single-breasted blazer features a structured shoulder and a modern silhouette.', sizes: ['46', '48', '50', '52'], colors: ['Navy', 'Charcoal'] },
+  { id: 2, name: 'Kyoto Selvedge Denim', designer: 'Consero Denim', price: 480, category: 'Trousers', image: 'https://placehold.co/800x1000/4a5568/e2e8f0?text=Kyoto+Denim', description: 'Crafted from 14oz Japanese selvedge denim, these jeans offer a slim-straight fit that molds to the wearer over time.', sizes: ['30', '31', '32', '34', '36'], colors: ['Raw Indigo', 'Black'] },
+  { id: 3, name: 'Aspen Cashmere Crewneck', designer: 'Consero Knitwear', price: 890, category: 'Knitwear', image: 'https://placehold.co/800x1000/718096/e2e8f0?text=Aspen+Crewneck', description: 'A timeless crewneck sweater spun from pure, Grade-A Mongolian cashmere for unparalleled softness and warmth.', sizes: ['S', 'M', 'L', 'XL'], colors: ['Heather Grey', 'Camel'] },
+  { id: 4, name: 'Nomad Field Jacket', designer: 'Consero Outerwear', price: 2200, category: 'Outerwear', image: 'https://placehold.co/800x1000/a0aec0/2d3748?text=Nomad+Jacket', description: 'A modern interpretation of the classic field jacket, constructed from water-resistant technical fabric with leather detailing.', sizes: ['S', 'M', 'L'], colors: ['Olive', 'Black'] },
+  { id: 5, name: 'Lisbon Linen Shirt', designer: 'Consero Sartoria', price: 350, category: 'Shirts', image: 'https://placehold.co/800x1000/cbd5e0/2d3748?text=Lisbon+Shirt', description: 'The quintessential summer shirt, cut from fine Irish linen for a breathable and relaxed feel. Features mother-of-pearl buttons.', sizes: ['S', 'M', 'L', 'XL'], colors: ['White', 'Sky Blue'] },
+  { id: 6, name: 'Como Piqué Polo', designer: 'Consero', price: 280, category: 'Tops', image: 'https://placehold.co/800x1000/e2e8f0/2d3748?text=Como+Polo', description: 'An elevated polo shirt made from premium long-staple cotton piqué, offering a perfect fit and superior comfort.', sizes: ['S', 'M', 'L', 'XL'], colors: ['Black', 'White', 'Navy'] },
+  { id: 7, name: 'Roma Leather Loafers', designer: 'Consero Footwear', price: 950, category: 'Accessories', image: 'https://placehold.co/800x1000/4a5568/e2e8f0?text=Roma+Loafers', description: 'Hand-stitched in Italy from supple calfskin leather, these loafers feature a classic penny front and a durable Blake-stitched sole.', sizes: ['8', '9', '10', '11'], colors: ['Dark Brown', 'Black'] },
+  { id: 8, name: 'Eterno Suede Belt', designer: 'Consero', price: 320, category: 'Accessories', image: 'https://placehold.co/800x1000/718096/e2e8f0?text=Eterno+Belt', description: 'A refined belt crafted from velvety Italian suede with a polished silver-tone buckle. The perfect finishing touch.', sizes: ['30', '32', '34', '36'], colors: ['Taupe', 'Chocolate'] },
 ];
+
 
 // -- CONTEXT FOR CART MANAGEMENT --
 const CartContext = createContext();
@@ -72,9 +73,9 @@ const Header = ({ setPage }) => {
 
   const navLinks = [
     { name: 'New Arrivals', page: 'products' },
-    { name: 'Designers', page: 'home' },
-    { name: 'Clothing', page: 'products' },
-    { name: 'Accessories', page: 'products' },
+    { name: 'Tailoring', page: 'products' },
+    { name: 'Outerwear', page: 'products' },
+    { name: 'Knitwear', page: 'products' },
     { name: 'Journal', page: 'home' },
   ];
 
@@ -91,8 +92,8 @@ const Header = ({ setPage }) => {
 
           {/* Logo */}
           <div className="flex-shrink-0">
-            <a href="#" onClick={(e) => { e.preventDefault(); setPage('home'); }} className="text-2xl font-serif tracking-widest text-gray-900 uppercase">
-              AETHER
+            <a href="#" onClick={(e) => { e.preventDefault(); setPage('home'); }} className="text-3xl font-serif tracking-wider text-gray-900" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+              Consero
             </a>
           </div>
 
@@ -161,25 +162,25 @@ const Footer = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-sm font-semibold text-gray-800 tracking-wider uppercase">Customer Service</h3>
+            <h3 className="text-sm font-semibold text-gray-800 tracking-wider uppercase">Client Services</h3>
             <ul className="mt-4 space-y-2">
               <li><a href="#" className="text-sm text-gray-600 hover:text-gray-900">Contact Us</a></li>
               <li><a href="#" className="text-sm text-gray-600 hover:text-gray-900">Shipping & Returns</a></li>
               <li><a href="#" className="text-sm text-gray-600 hover:text-gray-900">FAQ</a></li>
-              <li><a href="#" className="text-sm text-gray-600 hover:text-gray-900">Size Guide</a></li>
+              <li><a href="#" className="text-sm text-gray-600 hover:text-gray-900">Sizing</a></li>
             </ul>
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-gray-800 tracking-wider uppercase">About Aether</h3>
+            <h3 className="text-sm font-semibold text-gray-800 tracking-wider uppercase">About Consero</h3>
             <ul className="mt-4 space-y-2">
-              <li><a href="#" className="text-sm text-gray-600 hover:text-gray-900">Our Story</a></li>
+              <li><a href="#" className="text-sm text-gray-600 hover:text-gray-900">Our Philosophy</a></li>
               <li><a href="#" className="text-sm text-gray-600 hover:text-gray-900">Careers</a></li>
-              <li><a href="#" className="text-sm text-gray-600 hover:text-gray-900">Sustainability</a></li>
+              <li><a href="#" className="text-sm text-gray-600 hover:text-gray-900">Craftsmanship</a></li>
               <li><a href="#" className="text-sm text-gray-600 hover:text-gray-900">Press</a></li>
             </ul>
           </div>
           <div className="col-span-1 md:col-span-2">
-            <h3 className="text-sm font-semibold text-gray-800 tracking-wider uppercase">Join Our World</h3>
+            <h3 className="text-sm font-semibold text-gray-800 tracking-wider uppercase">Join The World of Consero</h3>
             <p className="mt-4 text-sm text-gray-600">Be the first to know about new arrivals, exclusive collections, and brand stories.</p>
             <form className="mt-4 flex">
               <input type="email" placeholder="Enter your email" className="w-full px-4 py-2 border border-gray-300 rounded-l-md focus:ring-gray-800 focus:border-gray-800 text-sm" />
@@ -188,10 +189,10 @@ const Footer = () => {
           </div>
         </div>
         <div className="mt-12 border-t border-gray-200 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sm text-gray-500">&copy; {new Date().getFullYear()} AETHER. All rights reserved.</p>
+          <p className="text-sm text-gray-500">&copy; {new Date().getFullYear()} Consero. All rights reserved.</p>
           <div className="flex space-x-4 mt-4 md:mt-0">
             <a href="#" className="text-gray-500 hover:text-gray-900">Instagram</a>
-            <a href="#" className="text-gray-500 hover:text-gray-900">Pinterest</a>
+            <a href="#" className="text-gray-500 hover:text-gray-900">X</a>
             <a href="#" className="text-gray-500 hover:text-gray-900">Facebook</a>
           </div>
         </div>
@@ -207,11 +208,11 @@ const HomePage = ({ setPage, setSelectedProduct }) => {
   return (
     <div className="bg-white">
       {/* Hero Section */}
-      <section className="relative h-[60vh] md:h-[80vh] bg-cover bg-center" style={{ backgroundImage: "url('https://placehold.co/1800x1200/dcdcdc/333?text=AETHER+FW24')" }}>
-        <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+      <section className="relative h-[60vh] md:h-[80vh] bg-cover bg-center" style={{ backgroundImage: "url('https://placehold.co/1800x1200/2d3748/e2e8f0?text=Consero+AW24')" }}>
+        <div className="absolute inset-0 bg-black bg-opacity-30"></div>
         <div className="relative container mx-auto px-4 h-full flex flex-col justify-end pb-16 md:pb-24">
-          <h1 className="text-4xl md:text-6xl font-serif text-white tracking-wider leading-tight">The Art of Form</h1>
-          <p className="mt-4 text-lg text-white max-w-lg">Discover the Fall/Winter '24 collection, a study in silhouette and texture.</p>
+          <h1 className="text-4xl md:text-6xl font-serif text-white tracking-wider leading-tight">The Art of Tailoring</h1>
+          <p className="mt-4 text-lg text-white max-w-lg">Discover the Autumn/Winter '24 collection, a study in modern masculinity and timeless form.</p>
           <button onClick={() => setPage('products')} className="mt-8 bg-white text-gray-900 px-8 py-3 rounded-full uppercase text-sm font-medium hover:bg-gray-200 transition-colors w-fit">
             Shop The Collection
           </button>
@@ -223,11 +224,11 @@ const HomePage = ({ setPage, setSelectedProduct }) => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div className="order-2 md:order-1">
-              <img src="https://placehold.co/800x1000/e0e0e0/333?text=Collection+One" alt="Collection" className="w-full h-auto object-cover rounded-lg" />
+              <img src="https://placehold.co/800x1000/a0aec0/2d3748?text=Italian+Craftsmanship" alt="Collection" className="w-full h-auto object-cover rounded-lg" />
             </div>
             <div className="order-1 md:order-2 md:pl-12">
               <h2 className="text-3xl font-serif text-gray-900">Modern Heirlooms</h2>
-              <p className="mt-4 text-gray-600">Timeless pieces designed to be cherished for years to come. Explore our curated selection of signature styles.</p>
+              <p className="mt-4 text-gray-600">Timeless pieces designed for the discerning gentleman. Explore our curated selection of signature styles, crafted from the world's finest materials.</p>
               <button onClick={() => setPage('products')} className="mt-6 text-gray-900 font-medium group">
                 Explore The Edit
                 <span className="block max-w-0 group-hover:max-w-full transition-all duration-300 h-0.5 bg-gray-900"></span>
@@ -288,7 +289,7 @@ const ProductsPage = ({ setPage, setSelectedProduct }) => {
     <div className="bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-serif text-gray-900">All Clothing</h1>
+          <h1 className="text-4xl font-serif text-gray-900">Men's Collection</h1>
           <p className="mt-2 text-gray-600">Discover our latest collection of timeless designs.</p>
         </div>
 
@@ -376,7 +377,7 @@ const ProductDetailPage = ({ product, setPage }) => {
         <div className="text-sm mb-6">
           <a href="#" onClick={(e) => { e.preventDefault(); setPage('home'); }} className="text-gray-500 hover:text-gray-700">Home</a>
           <ChevronRight className="inline mx-2 h-4 w-4 text-gray-400" />
-          <a href="#" onClick={(e) => { e.preventDefault(); setPage('products'); }} className="text-gray-500 hover:text-gray-700">Clothing</a>
+          <a href="#" onClick={(e) => { e.preventDefault(); setPage('products'); }} className="text-gray-500 hover:text-gray-700">Collection</a>
           <ChevronRight className="inline mx-2 h-4 w-4 text-gray-400" />
           <span className="text-gray-700">{product.name}</span>
         </div>
@@ -401,7 +402,7 @@ const ProductDetailPage = ({ product, setPage }) => {
                     key={color}
                     onClick={() => setSelectedColor(color)}
                     className={`h-8 w-8 rounded-full border-2 ${selectedColor === color ? 'border-gray-800' : 'border-gray-300'}`}
-                    style={{ backgroundColor: color.toLowerCase() === 'ivory' ? '#FFFFF0' : color.toLowerCase() }}
+                    style={{ backgroundColor: color.toLowerCase() }}
                     title={color}
                   >
                     <span className="sr-only">{color}</span>
@@ -413,7 +414,7 @@ const ProductDetailPage = ({ product, setPage }) => {
             <div className="mt-8">
               <div className="flex justify-between items-center">
                 <h3 className="text-sm font-medium text-gray-900">Size: <span className="text-gray-600 font-normal">{selectedSize}</span></h3>
-                <a href="#" className="text-sm font-medium text-gray-600 hover:text-gray-900">Size guide</a>
+                <a href="#" className="text-sm font-medium text-gray-600 hover:text-gray-900">Sizing Guide</a>
               </div>
               <div className="grid grid-cols-4 gap-4 mt-2">
                 {product.sizes.map(size => (
@@ -561,18 +562,13 @@ export default function App() {
   return (
     <CartProvider>
       <div className="font-sans text-gray-800">
-        <Header setPage={setPage} />
-        <main>
-          {renderPage()}
-        </main>
-        <Footer />
         <style jsx global>{`
-          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&display=swap');
           body {
             font-family: 'Inter', sans-serif;
           }
-          h1, h2, h3, .font-serif {
-            font-family: 'Lora', serif;
+          .font-serif {
+            font-family: 'Cormorant Garamond', serif;
           }
           @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -586,6 +582,11 @@ export default function App() {
             animation: fadeIn 0.5s ease-out, fadeOut 0.5s ease-in 2.5s;
           }
         `}</style>
+        <Header setPage={setPage} />
+        <main>
+          {renderPage()}
+        </main>
+        <Footer />
       </div>
     </CartProvider>
   );
