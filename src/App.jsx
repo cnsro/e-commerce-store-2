@@ -1,17 +1,45 @@
 import React, { useState, createContext, useContext, useEffect } from 'react';
 import { ShoppingBag, Menu, X, ChevronRight, Search, User, Heart, Minus, Plus } from 'lucide-react';
 
-// -- DUMMY DATA FOR CONSERO --
-const products = [
-  { id: 1, name: 'Milano Wool Blazer', designer: 'Consero Sartoria', price: 1950, category: 'Tailoring', image: 'https://placehold.co/800x1000/2d3748/e2e8f0?text=Milano+Blazer', description: 'Impeccably tailored from Italian virgin wool, this single-breasted blazer features a structured shoulder and a modern silhouette.', sizes: ['46', '48', '50', '52'], colors: ['Navy', 'Charcoal'] },
-  { id: 2, name: 'Kyoto Selvedge Denim', designer: 'Consero Denim', price: 480, category: 'Trousers', image: 'https://placehold.co/800x1000/4a5568/e2e8f0?text=Kyoto+Denim', description: 'Crafted from 14oz Japanese selvedge denim, these jeans offer a slim-straight fit that molds to the wearer over time.', sizes: ['30', '31', '32', '34', '36'], colors: ['Raw Indigo', 'Black'] },
-  { id: 3, name: 'Aspen Cashmere Crewneck', designer: 'Consero Knitwear', price: 890, category: 'Knitwear', image: 'https://placehold.co/800x1000/718096/e2e8f0?text=Aspen+Crewneck', description: 'A timeless crewneck sweater spun from pure, Grade-A Mongolian cashmere for unparalleled softness and warmth.', sizes: ['S', 'M', 'L', 'XL'], colors: ['Heather Grey', 'Camel'] },
-  { id: 4, name: 'Nomad Field Jacket', designer: 'Consero Outerwear', price: 2200, category: 'Outerwear', image: 'https://placehold.co/800x1000/a0aec0/2d3748?text=Nomad+Jacket', description: 'A modern interpretation of the classic field jacket, constructed from water-resistant technical fabric with leather detailing.', sizes: ['S', 'M', 'L'], colors: ['Olive', 'Black'] },
-  { id: 5, name: 'Lisbon Linen Shirt', designer: 'Consero Sartoria', price: 350, category: 'Shirts', image: 'https://placehold.co/800x1000/cbd5e0/2d3748?text=Lisbon+Shirt', description: 'The quintessential summer shirt, cut from fine Irish linen for a breathable and relaxed feel. Features mother-of-pearl buttons.', sizes: ['S', 'M', 'L', 'XL'], colors: ['White', 'Sky Blue'] },
-  { id: 6, name: 'Como Piqué Polo', designer: 'Consero', price: 280, category: 'Tops', image: 'https://placehold.co/800x1000/e2e8f0/2d3748?text=Como+Polo', description: 'An elevated polo shirt made from premium long-staple cotton piqué, offering a perfect fit and superior comfort.', sizes: ['S', 'M', 'L', 'XL'], colors: ['Black', 'White', 'Navy'] },
-  { id: 7, name: 'Roma Leather Loafers', designer: 'Consero Footwear', price: 950, category: 'Accessories', image: 'https://placehold.co/800x1000/4a5568/e2e8f0?text=Roma+Loafers', description: 'Hand-stitched in Italy from supple calfskin leather, these loafers feature a classic penny front and a durable Blake-stitched sole.', sizes: ['8', '9', '10', '11'], colors: ['Dark Brown', 'Black'] },
-  { id: 8, name: 'Eterno Suede Belt', designer: 'Consero', price: 320, category: 'Accessories', image: 'https://placehold.co/800x1000/718096/e2e8f0?text=Eterno+Belt', description: 'A refined belt crafted from velvety Italian suede with a polished silver-tone buckle. The perfect finishing touch.', sizes: ['30', '32', '34', '36'], colors: ['Taupe', 'Chocolate'] },
-];
+// -- CONTEXT FOR PRODUCT MANAGEMENT --
+const ProductContext = createContext();
+
+const ProductProvider = ({ children }) => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        // This now fetches from our new backend API route instead of Firebase
+        const response = await fetch('/api/products');
+        if (!response.ok) {
+          throw new Error('Failed to fetch products');
+        }
+        const productList = await response.json();
+        
+        if (productList.length === 0) {
+            console.warn("No products found from the API. Make sure your Neon database has products.")
+        }
+        setProducts(productList);
+      } catch (error) {
+        console.error("Error fetching products: ", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  return (
+    <ProductContext.Provider value={{ products, loading }}>
+      {children}
+    </ProductContext.Provider>
+  );
+};
+
+const useProducts = () => useContext(ProductContext);
 
 
 // -- CONTEXT FOR CART MANAGEMENT --
@@ -62,8 +90,7 @@ const CartProvider = ({ children }) => {
   );
 };
 
-// Custom hook to use cart context
-const useCart = () => useContext(CartContext);
+const useCart = () => useContext(ProductContext);
 
 // -- HEADER COMPONENT --
 const Header = ({ setPage }) => {
@@ -82,21 +109,16 @@ const Header = ({ setPage }) => {
     <header className="bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          {/* Mobile Menu Button */}
           <div className="md:hidden">
             <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-800">
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
-
-          {/* Logo */}
           <div className="flex-shrink-0">
             <a href="#" onClick={(e) => { e.preventDefault(); setPage('home'); }} className="text-3xl font-serif tracking-wider text-gray-900" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
               Consero
             </a>
           </div>
-
-          {/* Desktop Navigation */}
           <nav className="hidden md:flex md:space-x-8">
             {navLinks.map((link) => (
               <a
@@ -109,8 +131,6 @@ const Header = ({ setPage }) => {
               </a>
             ))}
           </nav>
-
-          {/* Icons */}
           <div className="flex items-center space-x-4">
             <button className="text-gray-600 hover:text-gray-900 hidden sm:block">
               <Search size={20} />
@@ -132,8 +152,6 @@ const Header = ({ setPage }) => {
           </div>
         </div>
       </div>
-
-      {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden absolute top-20 left-0 w-full bg-white shadow-lg">
           <nav className="flex flex-col p-4 space-y-4">
@@ -202,11 +220,15 @@ const Footer = ({ setPage }) => {
 
 // -- HOME PAGE COMPONENT --
 const HomePage = ({ setPage, setSelectedProduct }) => {
+  const { products, loading } = useProducts();
   const featuredProducts = products.slice(0, 4);
+
+  if (loading) {
+    return <div className="flex justify-center items-center h-screen"><div className="text-xl">Loading Store...</div></div>;
+  }
 
   return (
     <div className="bg-white">
-      {/* Hero Section */}
       <section className="relative h-[60vh] md:h-[80vh] bg-cover bg-center" style={{ backgroundImage: "url('https://placehold.co/1800x1200/2d3748/e2e8f0?text=Consero+AW24')" }}>
         <div className="absolute inset-0 bg-black bg-opacity-30"></div>
         <div className="relative container mx-auto px-4 h-full flex flex-col justify-end pb-16 md:pb-24">
@@ -217,8 +239,6 @@ const HomePage = ({ setPage, setSelectedProduct }) => {
           </button>
         </div>
       </section>
-
-      {/* Featured Collections */}
       <section className="py-16 sm:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
@@ -236,8 +256,6 @@ const HomePage = ({ setPage, setSelectedProduct }) => {
           </div>
         </div>
       </section>
-
-      {/* New Arrivals */}
       <section className="bg-gray-50 py-16 sm:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-center text-3xl font-serif text-gray-900 mb-12">New Arrivals</h2>
@@ -245,11 +263,11 @@ const HomePage = ({ setPage, setSelectedProduct }) => {
             {featuredProducts.map((product) => (
               <div key={product.id} className="group relative cursor-pointer" onClick={() => { setSelectedProduct(product); setPage('productDetail'); }}>
                 <div className="w-full aspect-[2/2.5] bg-gray-200 rounded-lg overflow-hidden">
-                  <img src={product.image} alt={product.name} className="w-full h-full object-center object-cover group-hover:opacity-75 transition-opacity" />
+                  <img src={product.image_url} alt={product.name} className="w-full h-full object-center object-cover group-hover:opacity-75 transition-opacity" />
                 </div>
                 <div className="mt-4 text-center">
                   <h3 className="text-sm font-medium text-gray-900">{product.name}</h3>
-                  <p className="mt-1 text-sm text-gray-500">${product.price.toLocaleString()}</p>
+                  <p className="mt-1 text-sm text-gray-500">${parseFloat(product.price).toLocaleString()}</p>
                 </div>
               </div>
             ))}
@@ -267,9 +285,14 @@ const HomePage = ({ setPage, setSelectedProduct }) => {
 
 // -- PRODUCTS PAGE COMPONENT --
 const ProductsPage = ({ setPage, setSelectedProduct }) => {
+  const { products, loading } = useProducts();
   const [filters, setFilters] = useState({ category: 'All', designer: 'All' });
   const [sortBy, setSortBy] = useState('newest');
 
+  if (loading) {
+    return <div className="flex justify-center items-center h-screen"><div className="text-xl">Loading Products...</div></div>;
+  }
+  
   const categories = ['All', ...new Set(products.map(p => p.category))];
   const designers = ['All', ...new Set(products.map(p => p.designer))];
 
@@ -280,7 +303,7 @@ const ProductsPage = ({ setPage, setSelectedProduct }) => {
       switch (sortBy) {
         case 'price-asc': return a.price - b.price;
         case 'price-desc': return b.price - a.price;
-        default: return 0; // 'newest' would require a timestamp, default to no sort
+        default: return 0;
       }
     });
 
@@ -291,8 +314,6 @@ const ProductsPage = ({ setPage, setSelectedProduct }) => {
           <h1 className="text-4xl font-serif text-gray-900">Men's Collection</h1>
           <p className="mt-2 text-gray-600">Discover our latest collection of timeless designs.</p>
         </div>
-
-        {/* Filters and Sorting */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 border-y border-gray-200 py-4">
           <div className="flex space-x-4 mb-4 md:mb-0">
             <select
@@ -324,18 +345,16 @@ const ProductsPage = ({ setPage, setSelectedProduct }) => {
             </select>
           </div>
         </div>
-
-        {/* Product Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8 sm:gap-x-6 lg:gap-x-8">
           {filteredProducts.map((product) => (
             <div key={product.id} className="group relative cursor-pointer" onClick={() => { setSelectedProduct(product); setPage('productDetail'); }}>
               <div className="w-full aspect-[2/2.5] bg-gray-200 rounded-lg overflow-hidden">
-                <img src={product.image} alt={product.name} className="w-full h-full object-center object-cover group-hover:opacity-75 transition-opacity" />
+                <img src={product.image_url} alt={product.name} className="w-full h-full object-center object-cover group-hover:opacity-75 transition-opacity" />
               </div>
               <div className="mt-4">
                 <h3 className="text-sm font-medium text-gray-900">{product.name}</h3>
                 <p className="mt-1 text-sm text-gray-500">{product.designer}</p>
-                <p className="mt-1 text-sm font-semibold text-gray-900">${product.price.toLocaleString()}</p>
+                <p className="mt-1 text-sm font-semibold text-gray-900">${parseFloat(product.price).toLocaleString()}</p>
               </div>
             </div>
           ))}
@@ -348,16 +367,7 @@ const ProductsPage = ({ setPage, setSelectedProduct }) => {
 // -- PRODUCT DETAIL PAGE COMPONENT --
 const ProductDetailPage = ({ product, setPage }) => {
   const { addToCart } = useCart();
-  const [selectedSize, setSelectedSize] = useState(product.sizes[0]);
-  const [selectedColor, setSelectedColor] = useState(product.colors[0]);
-  const [showNotification, setShowNotification] = useState(false);
-
-  const handleAddToCart = () => {
-    addToCart(product, selectedSize, selectedColor);
-    setShowNotification(true);
-    setTimeout(() => setShowNotification(false), 3000);
-  };
-
+  
   if (!product) {
     return (
         <div className="text-center py-20">
@@ -369,10 +379,19 @@ const ProductDetailPage = ({ product, setPage }) => {
     );
   }
 
+  const [selectedSize, setSelectedSize] = useState(product.sizes[0]);
+  const [selectedColor, setSelectedColor] = useState(product.colors[0]);
+  const [showNotification, setShowNotification] = useState(false);
+
+  const handleAddToCart = () => {
+    addToCart(product, selectedSize, selectedColor);
+    setShowNotification(true);
+    setTimeout(() => setShowNotification(false), 3000);
+  };
+
   return (
     <div className="bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Breadcrumbs */}
         <div className="text-sm mb-6">
           <a href="#" onClick={(e) => { e.preventDefault(); setPage('home'); }} className="text-gray-500 hover:text-gray-700">Home</a>
           <ChevronRight className="inline mx-2 h-4 w-4 text-gray-400" />
@@ -380,19 +399,14 @@ const ProductDetailPage = ({ product, setPage }) => {
           <ChevronRight className="inline mx-2 h-4 w-4 text-gray-400" />
           <span className="text-gray-700">{product.name}</span>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          {/* Product Image */}
           <div>
-            <img src={product.image} alt={product.name} className="w-full h-auto object-cover rounded-lg" />
+            <img src={product.image_url} alt={product.name} className="w-full h-auto object-cover rounded-lg" />
           </div>
-
-          {/* Product Info */}
           <div>
             <p className="text-sm uppercase tracking-widest text-gray-500">{product.designer}</p>
             <h1 className="text-3xl md:text-4xl font-serif text-gray-900 mt-2">{product.name}</h1>
-            <p className="text-2xl text-gray-800 mt-4">${product.price.toLocaleString()}</p>
-
+            <p className="text-2xl text-gray-800 mt-4">${parseFloat(product.price).toLocaleString()}</p>
             <div className="mt-8">
               <h3 className="text-sm font-medium text-gray-900">Color: <span className="text-gray-600 font-normal">{selectedColor}</span></h3>
               <div className="flex items-center space-x-3 mt-2">
@@ -409,7 +423,6 @@ const ProductDetailPage = ({ product, setPage }) => {
                 ))}
               </div>
             </div>
-
             <div className="mt-8">
               <div className="flex justify-between items-center">
                 <h3 className="text-sm font-medium text-gray-900">Size: <span className="text-gray-600 font-normal">{selectedSize}</span></h3>
@@ -427,12 +440,9 @@ const ProductDetailPage = ({ product, setPage }) => {
                 ))}
               </div>
             </div>
-
             <button onClick={handleAddToCart} className="mt-10 w-full bg-gray-800 text-white py-4 rounded-md text-sm font-medium uppercase hover:bg-gray-900 transition-colors">
               Add to Bag
             </button>
-
-            {/* Product Description */}
             <div className="mt-10">
               <h3 className="text-sm font-medium text-gray-900">Description</h3>
               <p className="mt-2 text-sm text-gray-600 leading-relaxed">{product.description}</p>
@@ -440,8 +450,6 @@ const ProductDetailPage = ({ product, setPage }) => {
           </div>
         </div>
       </div>
-      
-      {/* Add to Cart Notification */}
       {showNotification && (
         <div className="fixed bottom-5 right-5 bg-gray-900 text-white px-6 py-4 rounded-lg shadow-lg animate-fade-in-out">
           <p><span className="font-semibold">{product.name}</span> has been added to your bag.</p>
@@ -459,7 +467,6 @@ const CartPage = ({ setPage }) => {
     <div className="bg-gray-50 min-h-screen">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-3xl font-serif text-center mb-8">Shopping Bag</h1>
-
         {cartItems.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-lg shadow-sm">
             <p className="text-gray-600">Your shopping bag is empty.</p>
@@ -469,19 +476,18 @@ const CartPage = ({ setPage }) => {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Cart Items */}
             <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm">
               <ul role="list" className="divide-y divide-gray-200">
                 {cartItems.map((item) => (
                   <li key={`${item.id}-${item.size}-${item.color}`} className="flex py-6">
                     <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
-                      <img src={item.image} alt={item.name} className="h-full w-full object-cover object-center" />
+                      <img src={item.image_url} alt={item.name} className="h-full w-full object-cover object-center" />
                     </div>
                     <div className="ml-4 flex flex-1 flex-col">
                       <div>
                         <div className="flex justify-between text-base font-medium text-gray-900">
                           <h3>{item.name}</h3>
-                          <p className="ml-4">${(item.price * item.quantity).toLocaleString()}</p>
+                          <p className="ml-4">${(parseFloat(item.price) * item.quantity).toLocaleString()}</p>
                         </div>
                         <p className="mt-1 text-sm text-gray-500">{item.color}</p>
                         <p className="mt-1 text-sm text-gray-500">Size: {item.size}</p>
@@ -507,8 +513,6 @@ const CartPage = ({ setPage }) => {
                 ))}
               </ul>
             </div>
-
-            {/* Order Summary */}
             <div className="bg-white p-6 rounded-lg shadow-sm h-fit">
               <h2 className="text-lg font-medium text-gray-900">Order summary</h2>
               <div className="mt-6 space-y-4">
@@ -555,7 +559,6 @@ export default function App() {
   const [page, setPage] = useState('home');
   const [selectedProduct, setSelectedProduct] = useState(null);
   
-  // Scroll to top on page change
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [page]);
@@ -568,8 +571,6 @@ export default function App() {
         return <ProductDetailPage product={selectedProduct} setPage={setPage} />;
       case 'cart':
         return <CartPage setPage={setPage} />;
-      
-      // --- NEW STATIC PAGES ---
       case 'contact':
         return <GenericInfoPage title="Contact Us"><p>For client services, press, or other inquiries, please contact us via email. We aim to respond to all inquiries within 24 business hours.</p><p className="mt-4"><strong>Client Services:</strong> <a href="mailto:service@consero.com">service@consero.com</a></p><p><strong>Press Inquiries:</strong> <a href="mailto:press@consero.com">press@consero.com</a></p></GenericInfoPage>;
       case 'shipping':
@@ -586,7 +587,6 @@ export default function App() {
         return <GenericInfoPage title="Craftsmanship"><p>Every Consero garment is a testament to the skill of our artisans. We partner with small, family-owned workshops in Italy and Japan, utilizing traditional techniques and the finest materials to create pieces of exceptional quality.</p></GenericInfoPage>;
       case 'press':
         return <GenericInfoPage title="Press"><p>For all press inquiries, including sample requests and interviews, please contact our public relations team at <a href="mailto:press@consero.com">press@consero.com</a>.</p></GenericInfoPage>;
-
       case 'home':
       default:
         return <HomePage setPage={setPage} setSelectedProduct={setSelectedProduct} />;
@@ -594,36 +594,38 @@ export default function App() {
   };
 
   return (
-    <CartProvider>
-      <div className="font-sans text-gray-800">
-        <style jsx global>{`
-          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&display=swap');
-          body {
-            font-family: 'Inter', sans-serif;
-          }
-          .font-serif {
-            font-family: 'Cormorant Garamond', serif;
-          }
-          .prose a { color: #1f2937; text-decoration: underline; }
-          .prose a:hover { color: #4b5563; }
-          @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-          @keyframes fadeOut {
-            from { opacity: 1; transform: translateY(0); }
-            to { opacity: 0; transform: translateY(10px); }
-          }
-          .animate-fade-in-out {
-            animation: fadeIn 0.5s ease-out, fadeOut 0.5s ease-in 2.5s;
-          }
-        `}</style>
-        <Header setPage={setPage} />
-        <main>
-          {renderPage()}
-        </main>
-        <Footer setPage={setPage} />
-      </div>
-    </CartProvider>
+    <ProductProvider>
+      <CartProvider>
+        <div className="font-sans text-gray-800">
+          <style>{`
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&display=swap');
+            body {
+              font-family: 'Inter', sans-serif;
+            }
+            .font-serif {
+              font-family: 'Cormorant Garamond', serif;
+            }
+            .prose a { color: #1f2937; text-decoration: underline; }
+            .prose a:hover { color: #4b5563; }
+            @keyframes fadeIn {
+              from { opacity: 0; transform: translateY(10px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes fadeOut {
+              from { opacity: 1; transform: translateY(0); }
+              to { opacity: 0; transform: translateY(10px); }
+            }
+            .animate-fade-in-out {
+              animation: fadeIn 0.5s ease-out, fadeOut 0.5s ease-in 2.5s;
+            }
+          `}</style>
+          <Header setPage={setPage} />
+          <main>
+            {renderPage()}
+          </main>
+          <Footer setPage={setPage} />
+        </div>
+      </CartProvider>
+    </ProductProvider>
   );
 }
