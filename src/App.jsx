@@ -267,7 +267,7 @@ const HomePage = ({ setPage, setSelectedProduct }) => {
                 </div>
                 <div className="mt-4 text-center">
                   <h3 className="text-sm font-medium text-gray-900">{product.name}</h3>
-                  <p className="mt-1 text-sm text-gray-500">${parseFloat(product.price).toLocaleString()}</p>
+                  <p className="mt-1 text-sm text-gray-500">£{parseFloat(product.price).toLocaleString()}</p>
                 </div>
               </div>
             ))}
@@ -354,7 +354,7 @@ const ProductsPage = ({ setPage, setSelectedProduct }) => {
               <div className="mt-4">
                 <h3 className="text-sm font-medium text-gray-900">{product.name}</h3>
                 <p className="mt-1 text-sm text-gray-500">{product.designer}</p>
-                <p className="mt-1 text-sm font-semibold text-gray-900">${parseFloat(product.price).toLocaleString()}</p>
+                <p className="mt-1 text-sm font-semibold text-gray-900">£{parseFloat(product.price).toLocaleString()}</p>
               </div>
             </div>
           ))}
@@ -406,7 +406,7 @@ const ProductDetailPage = ({ product, setPage }) => {
           <div>
             <p className="text-sm uppercase tracking-widest text-gray-500">{product.designer}</p>
             <h1 className="text-3xl md:text-4xl font-serif text-gray-900 mt-2">{product.name}</h1>
-            <p className="text-2xl text-gray-800 mt-4">${parseFloat(product.price).toLocaleString()}</p>
+            <p className="text-2xl text-gray-800 mt-4">£{parseFloat(product.price).toLocaleString()}</p>
             <div className="mt-8">
               <h3 className="text-sm font-medium text-gray-900">Color: <span className="text-gray-600 font-normal">{selectedColor}</span></h3>
               <div className="flex items-center space-x-3 mt-2">
@@ -414,7 +414,7 @@ const ProductDetailPage = ({ product, setPage }) => {
                   <button
                     key={color}
                     onClick={() => setSelectedColor(color)}
-                    className={`h-8 w-8 rounded-full border-2 ${selectedColor === color ? 'border-gray-800' : 'border-gray-300'}`}
+                    className={`h-8 w-8 rounded-full border-2 £{selectedColor === color ? 'border-gray-800' : 'border-gray-300'}`}
                     style={{ backgroundColor: color.toLowerCase() }}
                     title={color}
                   >
@@ -433,7 +433,7 @@ const ProductDetailPage = ({ product, setPage }) => {
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`border rounded-md py-3 px-4 text-sm font-medium ${selectedSize === size ? 'bg-gray-900 text-white' : 'bg-white text-gray-900 hover:bg-gray-50'}`}
+                    className={`border rounded-md py-3 px-4 text-sm font-medium £{selectedSize === size ? 'bg-gray-900 text-white' : 'bg-white text-gray-900 hover:bg-gray-50'}`}
                   >
                     {size}
                   </button>
@@ -479,7 +479,7 @@ const CartPage = ({ setPage }) => {
             <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm">
               <ul role="list" className="divide-y divide-gray-200">
                 {cartItems.map((item) => (
-                  <li key={`${item.id}-${item.size}-${item.color}`} className="flex py-6">
+                  <li key={`£{item.id}-£{item.size}-£{item.color}`} className="flex py-6">
                     <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                       <img src={item.image_url} alt={item.name} className="h-full w-full object-cover object-center" />
                     </div>
@@ -487,7 +487,7 @@ const CartPage = ({ setPage }) => {
                       <div>
                         <div className="flex justify-between text-base font-medium text-gray-900">
                           <h3>{item.name}</h3>
-                          <p className="ml-4">${(parseFloat(item.price) * item.quantity).toLocaleString()}</p>
+                          <p className="ml-4">£{(parseFloat(item.price) * item.quantity).toLocaleString()}</p>
                         </div>
                         <p className="mt-1 text-sm text-gray-500">{item.color}</p>
                         <p className="mt-1 text-sm text-gray-500">Size: {item.size}</p>
@@ -518,11 +518,11 @@ const CartPage = ({ setPage }) => {
               <div className="mt-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <p className="text-sm text-gray-600">Subtotal</p>
-                  <p className="text-sm font-medium text-gray-900">${cartTotal.toLocaleString()}</p>
+                  <p className="text-sm font-medium text-gray-900">£{cartTotal.toLocaleString()}</p>
                 </div>
                 <div className="flex items-center justify-between border-t border-gray-200 pt-4">
                   <p className="text-base font-medium text-gray-900">Order total</p>
-                  <p className="text-base font-medium text-gray-900">${cartTotal.toLocaleString()}</p>
+                  <p className="text-base font-medium text-gray-900">£{cartTotal.toLocaleString()}</p>
                 </div>
               </div>
               <div className="mt-6">
