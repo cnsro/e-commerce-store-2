@@ -1,24 +1,5 @@
 import React, { useState, createContext, useContext, useEffect } from 'react';
 import { ShoppingBag, Menu, X, ChevronRight, Search, User, Heart, Minus, Plus } from 'lucide-react';
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
-
-// --- FIREBASE CONFIGURATION ---
-// Paste your Firebase config object here.
-// This object should be provided to you by Firebase when you create a new web app.
-const firebaseConfig = {
-  apiKey: "AIzaSyBduqJhrUEgvfO22vQtrncz2lOnm7IwEbI",
-  authDomain: "consero-store.firebaseapp.com",
-  projectId: "consero-store",
-  storageBucket: "consero-store.firebasestorage.app",
-  messagingSenderId: "320277863345",
-  appId: "1:320277863345:web:8bfffdaff2222c365d7b90"
-};
-
-// Initialize Firebase and Firestore
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
 
 // -- CONTEXT FOR PRODUCT MANAGEMENT --
 const ProductContext = createContext();
@@ -29,25 +10,20 @@ const ProductProvider = ({ children }) => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      // Check if the projectId is set, if not, we can't fetch data.
-      if (!firebaseConfig.projectId || firebaseConfig.projectId === "YOUR_PROJECT_ID") {
-        console.warn("Firebase config is not set. Using placeholder data.");
-        setLoading(false);
-        return;
-      }
       try {
-        const productsCollection = collection(db, 'products');
-        const productSnapshot = await getDocs(productsCollection);
-        const productList = productSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        // This now fetches from our new backend API route instead of Firebase
+        const response = await fetch('/api/products');
+        if (!response.ok) {
+          throw new Error('Failed to fetch products');
+        }
+        const productList = await response.json();
         
         if (productList.length === 0) {
-            console.warn("No products found in the database. Make sure you have added products to the 'products' collection in Firestore.")
+            console.warn("No products found from the API. Make sure your Neon database has products.")
         }
-
         setProducts(productList);
       } catch (error) {
-        console.error("Error fetching products from Firestore: ", error);
-        // In a real app, you'd want to show an error message to the user
+        console.error("Error fetching products: ", error);
       } finally {
         setLoading(false);
       }
@@ -287,11 +263,11 @@ const HomePage = ({ setPage, setSelectedProduct }) => {
             {featuredProducts.map((product) => (
               <div key={product.id} className="group relative cursor-pointer" onClick={() => { setSelectedProduct(product); setPage('productDetail'); }}>
                 <div className="w-full aspect-[2/2.5] bg-gray-200 rounded-lg overflow-hidden">
-                  <img src={product.image} alt={product.name} className="w-full h-full object-center object-cover group-hover:opacity-75 transition-opacity" />
+                  <img src={product.image_url} alt={product.name} className="w-full h-full object-center object-cover group-hover:opacity-75 transition-opacity" />
                 </div>
                 <div className="mt-4 text-center">
                   <h3 className="text-sm font-medium text-gray-900">{product.name}</h3>
-                  <p className="mt-1 text-sm text-gray-500">${product.price.toLocaleString()}</p>
+                  <p className="mt-1 text-sm text-gray-500">${parseFloat(product.price).toLocaleString()}</p>
                 </div>
               </div>
             ))}
@@ -373,12 +349,12 @@ const ProductsPage = ({ setPage, setSelectedProduct }) => {
           {filteredProducts.map((product) => (
             <div key={product.id} className="group relative cursor-pointer" onClick={() => { setSelectedProduct(product); setPage('productDetail'); }}>
               <div className="w-full aspect-[2/2.5] bg-gray-200 rounded-lg overflow-hidden">
-                <img src={product.image} alt={product.name} className="w-full h-full object-center object-cover group-hover:opacity-75 transition-opacity" />
+                <img src={product.image_url} alt={product.name} className="w-full h-full object-center object-cover group-hover:opacity-75 transition-opacity" />
               </div>
               <div className="mt-4">
                 <h3 className="text-sm font-medium text-gray-900">{product.name}</h3>
                 <p className="mt-1 text-sm text-gray-500">{product.designer}</p>
-                <p className="mt-1 text-sm font-semibold text-gray-900">${product.price.toLocaleString()}</p>
+                <p className="mt-1 text-sm font-semibold text-gray-900">${parseFloat(product.price).toLocaleString()}</p>
               </div>
             </div>
           ))}
@@ -425,12 +401,12 @@ const ProductDetailPage = ({ product, setPage }) => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div>
-            <img src={product.image} alt={product.name} className="w-full h-auto object-cover rounded-lg" />
+            <img src={product.image_url} alt={product.name} className="w-full h-auto object-cover rounded-lg" />
           </div>
           <div>
             <p className="text-sm uppercase tracking-widest text-gray-500">{product.designer}</p>
             <h1 className="text-3xl md:text-4xl font-serif text-gray-900 mt-2">{product.name}</h1>
-            <p className="text-2xl text-gray-800 mt-4">${product.price.toLocaleString()}</p>
+            <p className="text-2xl text-gray-800 mt-4">${parseFloat(product.price).toLocaleString()}</p>
             <div className="mt-8">
               <h3 className="text-sm font-medium text-gray-900">Color: <span className="text-gray-600 font-normal">{selectedColor}</span></h3>
               <div className="flex items-center space-x-3 mt-2">
@@ -505,13 +481,13 @@ const CartPage = ({ setPage }) => {
                 {cartItems.map((item) => (
                   <li key={`${item.id}-${item.size}-${item.color}`} className="flex py-6">
                     <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
-                      <img src={item.image} alt={item.name} className="h-full w-full object-cover object-center" />
+                      <img src={item.image_url} alt={item.name} className="h-full w-full object-cover object-center" />
                     </div>
                     <div className="ml-4 flex flex-1 flex-col">
                       <div>
                         <div className="flex justify-between text-base font-medium text-gray-900">
                           <h3>{item.name}</h3>
-                          <p className="ml-4">${(item.price * item.quantity).toLocaleString()}</p>
+                          <p className="ml-4">${(parseFloat(item.price) * item.quantity).toLocaleString()}</p>
                         </div>
                         <p className="mt-1 text-sm text-gray-500">{item.color}</p>
                         <p className="mt-1 text-sm text-gray-500">Size: {item.size}</p>
